@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "pydantic-common-models"
+version = "0.1.0"
+description = ""
+authors = ["e11it <im@e11it.ru>"]
+readme = "README.md"
+packages = [{include = "pydantic_common_models"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pydantic = "^1.10.7"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
