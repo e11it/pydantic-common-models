@@ -37,7 +37,7 @@ class KafkaACL(BaseModel):
     host: str = Field(..., alias="Host", regex=r'^(\*|\S+)$')
 
     @root_validator(skip_on_failure=True)
-    def check_passwords_match(cls, values):
+    def validate_structure(cls, values):
         operation, resource_type = values.get('operation'), values.get('resource_type')
         # validate and raise error
         resource_type.validate_operation(operation)
