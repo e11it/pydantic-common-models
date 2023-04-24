@@ -28,7 +28,7 @@ class KafkaAclCSVGetter(GetterDict):
 
 
 class KafkaACL(BaseModel):
-    kafka_principal: str = Field(..., alias="KafkaPrincipal",  regex=r'^User:[a-zA-Z0-9_@-]+$')
+    kafka_principal: str = Field(..., alias="KafkaPrincipal",  regex=r'^User:[a-zA-Z0-9_@\.-]+$')
     resource_type: Resources = Field(..., alias="ResourceType")
     pattern_type: KafkaResourcePatternType = Field(..., alias="PatternType")
     resource_name: str = Field(..., alias="ResourceName", regex=r'^(\*|[a-zA-Z0-9._-]+)$')
