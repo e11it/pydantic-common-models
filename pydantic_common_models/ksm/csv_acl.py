@@ -39,8 +39,11 @@ class KafkaACL(BaseModel):
     @root_validator(skip_on_failure=True)
     def validate_structure(cls, values):
         operation, resource_type = values.get('operation'), values.get('resource_type')
+        pattern_type, resource_name = values.get('pattern_type'), values.get('resource_name')
         # validate and raise error
         resource_type.validate_operation(operation)
+        if pattern_type == KafkaResourcePatternType.prefixed and resource_name == '*':
+            raise ValueError("PREFIXED pattern cant be used with resource: '*'")
         return values
 
 

@@ -57,6 +57,7 @@ class _EnumCaseInsensitive:
 
 
 class KafkaResourcePatternType(_EnumCaseInsensitive, StrEnum):
+    """Kafka pattern type: literal or prefixed"""
     literal = 'LITERAL'
     prefixed = 'PREFIXED'
 
