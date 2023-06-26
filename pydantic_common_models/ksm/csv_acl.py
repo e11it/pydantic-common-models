@@ -42,6 +42,7 @@ class KafkaACL(BaseModel):
         pattern_type, resource_name = values.get('pattern_type'), values.get('resource_name')
         # validate and raise error
         resource_type.validate_operation(operation)
+        # https://docs.confluent.io/platform/current/kafka/authorization.html#prefixed-acls
         if pattern_type == KafkaResourcePatternType.prefixed and resource_name == '*':
             raise ValueError("PREFIXED pattern cant be used with resource: '*'")
         return values
