@@ -8,8 +8,11 @@ packages = [{include = "pydantic_common_models"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-pydantic = "^1.10.7"
+pydantic = "^2.0.3"
 
+
+[tool.poetry.group.dev.dependencies]
+bump-pydantic = "^0.3.0"
 
 [build-system]
 requires = ["poetry-core"]

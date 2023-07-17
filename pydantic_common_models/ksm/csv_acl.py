@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, root_validator
+from pydantic import model_validator, ConfigDict, BaseModel, Field
 from pydantic.utils import GetterDict
 from typing import Any
 
@@ -31,12 +31,13 @@ class KafkaACL(BaseModel):
     kafka_principal: SimplePrincipal = Field(..., alias="KafkaPrincipal")
     resource_type: Resources = Field(..., alias="ResourceType")
     pattern_type: KafkaResourcePatternType = Field(..., alias="PatternType")
-    resource_name: str = Field(..., alias="ResourceName", regex=r'^(\*|[a-zA-Z0-9._-]+)$')
+    resource_name: str = Field(..., alias="ResourceName", pattern=r'^(\*|[a-zA-Z0-9._-]+)$')
     operation: KafkaTopicOperations = Field(..., alias="Operation")
     permission_type: PermissionType = Field(..., alias="PermissionType")
-    host: str = Field(..., alias="Host", regex=r'^(\*|\S+)$')
+    host: str = Field(..., alias="Host", pattern=r'^(\*|\S+)$')
 
-    @root_validator(skip_on_failure=True)
+    @model_validator(skip_on_failure=True)
+    @classmethod
     def validate_structure(cls, values):
         operation, resource_type = values.get('operation'), values.get('resource_type')
         pattern_type, resource_name = values.get('pattern_type'), values.get('resource_name')
@@ -49,6 +50,6 @@ class KafkaACL(BaseModel):
 
 
 class KafkaACLCSV(KafkaACL):
-    class Config:
-        orm_mode = True
-        getter_dict = KafkaAclCSVGetter
+    # TODO[pydantic]: The following keys were removed: `getter_dict`.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-config for more information.
+    model_config = ConfigDict(from_attributes=True, getter_dict=KafkaAclCSVGetter)
