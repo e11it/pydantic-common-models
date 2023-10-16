@@ -2,6 +2,7 @@ from pydantic import BaseModel
 
 
 class OtsSecretResponse(BaseModel):
+    """Http response from ots service"""
     custid: str
     metadata_key: str
     secret_key: str
