@@ -28,6 +28,8 @@ class KafkaAclCSVGetter(GetterDict):
 
 
 class KafkaACL(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     kafka_principal: SimplePrincipal = Field(..., alias="KafkaPrincipal")
     resource_type: Resources = Field(..., alias="ResourceType")
     pattern_type: KafkaResourcePatternType = Field(..., alias="PatternType")
@@ -36,20 +38,17 @@ class KafkaACL(BaseModel):
     permission_type: PermissionType = Field(..., alias="PermissionType")
     host: str = Field(..., alias="Host", pattern=r'^(\*|\S+)$')
 
-    @model_validator(mode='before')
-    @classmethod
-    def validate_structure(cls, values: Any) -> Any:
-        operation, resource_type = values.get('operation'), values.get('resource_type')
-        pattern_type, resource_name = values.get('pattern_type'), values.get('resource_name')
-        # validate and raise error
-        resource_type.validate_operation(operation)
+    @model_validator(mode='after')
+    def root_validator(self) -> 'KafkaACL':
+        self.resource_type.validate_operation(self.operation)
         # https://docs.confluent.io/platform/current/kafka/authorization.html#prefixed-acls
-        if pattern_type == KafkaResourcePatternType.prefixed and resource_name == '*':
+        if self.pattern_type == KafkaResourcePatternType.prefixed and self.resource_name == '*':
             raise ValueError("PREFIXED pattern cant be used with resource: '*'")
-        return values
+        return self
 
 
 class KafkaACLCSV(KafkaACL):
+    pass
     # TODO[pydantic]: The following keys were removed: `getter_dict`.
     # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-config for more information.
-    model_config = ConfigDict(from_attributes=True, getter_dict=KafkaAclCSVGetter)
+    #model_config = ConfigDict(from_attributes=True, getter_dict=KafkaAclCSVGetter)

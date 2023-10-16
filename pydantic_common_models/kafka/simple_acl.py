@@ -1,19 +1,48 @@
 # Kafka Simple Authorizer data model
 from enum import StrEnum
 import re
-from typing import Dict, Any
+from dataclasses import dataclass
+from typing import Any, Dict
 
-from pydantic import GetJsonSchemaHandler
-from pydantic_core import CoreSchema
+from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler, BaseModel
+from pydantic_core import CoreSchema, core_schema
 
 re_principal = r"^User:(?P<user>\S+?)$"
 re_principal_comp = re.compile(re_principal, re.IGNORECASE)
 
 
+@dataclass
 class SimplePrincipal(str):
-    """
-    Kafka Simple Acl principal name
-    """
+    _username: str
+
+    @property
+    def user(self):
+        return self._username
+
+    def __init__(self, principal: str):
+        self._username = self.validate_and_get_user(principal)
+
+    def __repr__(self):
+        return f'SimplePrincipal<User:{self._username}>'
+
+    @classmethod
+    def validate(cls, __input_value: str, _: core_schema.ValidationInfo):
+        return cls(__input_value)
+
+    @classmethod
+    def validate_and_get_user(cls, __principal: str) -> str:
+        match = re_principal_comp.fullmatch(__principal)
+        if not match:
+            raise ValueError('invalid principal name')
+
+        return match.group("user")
+
+    @classmethod
+    def __get_pydantic_core_schema__(
+            cls, source_type: Any, handler: GetCoreSchemaHandler
+    ) -> CoreSchema:
+        return core_schema.no_info_after_validator_function(cls, handler(str))
+
 
     @classmethod
     def __get_pydantic_json_schema__(
@@ -21,37 +50,13 @@ class SimplePrincipal(str):
     ) -> Dict[str, Any]:
         json_schema = super().__get_pydantic_json_schema__(core_schema, handler)
         json_schema = handler.resolve_ref_schema(json_schema)
-        json_schema.update(# simplified regex here for brevity, see the wikipedia link above
+        json_schema.update(  # simplified regex here for brevity, see the wikipedia link above
             pattern=re_principal,
             # some example postcodes
             examples=['User:some_user_name'],
         )
         return json_schema
 
-    @classmethod
-    def __get_validators__(cls):
-        # one or more validators may be yielded which will be called in the
-        # order to validate the input, each validator will receive as an input
-        # the value returned from the previous validator
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, v):
-        if not isinstance(v, str):
-            raise TypeError('string required')
-
-        return cls(v)
-
-    def __init__(self, principal):
-        match = re_principal_comp.fullmatch(principal)
-        if not match:
-            raise ValueError('invalid principal name')
-
-        self._user = match.group("user")
-
-    @property
-    def user(self):
-        return self._user
 
 class _EnumCaseInsensitive:
     """_missing_ method override to make Enums CaseInsensitive"""
