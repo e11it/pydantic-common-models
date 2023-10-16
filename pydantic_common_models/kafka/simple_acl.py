@@ -1,6 +1,10 @@
 # Kafka Simple Authorizer data model
 from enum import StrEnum
 import re
+from typing import Dict, Any
+
+from pydantic import GetJsonSchemaHandler
+from pydantic_core import CoreSchema
 
 re_principal = r"^User:(?P<user>\S+?)$"
 re_principal_comp = re.compile(re_principal, re.IGNORECASE)
@@ -12,15 +16,17 @@ class SimplePrincipal(str):
     """
 
     @classmethod
-    def __modify_schema__(cls, field_schema):
-        # __modify_schema__ should mutate the dict it receives in place,
-        # the returned value will be ignored
-        field_schema.update(
-            # simplified regex here for brevity, see the wikipedia link above
+    def __get_pydantic_json_schema__(
+            cls, core_schema: CoreSchema, handler: GetJsonSchemaHandler
+    ) -> Dict[str, Any]:
+        json_schema = super().__get_pydantic_json_schema__(core_schema, handler)
+        json_schema = handler.resolve_ref_schema(json_schema)
+        json_schema.update(# simplified regex here for brevity, see the wikipedia link above
             pattern=re_principal,
             # some example postcodes
             examples=['User:some_user_name'],
         )
+        return json_schema
 
     @classmethod
     def __get_validators__(cls):

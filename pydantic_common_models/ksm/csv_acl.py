@@ -36,9 +36,9 @@ class KafkaACL(BaseModel):
     permission_type: PermissionType = Field(..., alias="PermissionType")
     host: str = Field(..., alias="Host", pattern=r'^(\*|\S+)$')
 
-    @model_validator(skip_on_failure=True)
+    @model_validator(mode='before')
     @classmethod
-    def validate_structure(cls, values):
+    def validate_structure(cls, values: Any) -> Any:
         operation, resource_type = values.get('operation'), values.get('resource_type')
         pattern_type, resource_name = values.get('pattern_type'), values.get('resource_name')
         # validate and raise error
