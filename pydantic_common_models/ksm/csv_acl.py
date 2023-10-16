@@ -1,6 +1,4 @@
 from pydantic import model_validator, ConfigDict, BaseModel, Field
-from pydantic.utils import GetterDict
-from typing import Any
 
 from pydantic_common_models.kafka.simple_acl import \
     PermissionType, \
@@ -17,14 +15,6 @@ KSM_CSV_HEADERS = ["KafkaPrincipal",
                    "PermissionType",
                    "Host"
                    ]
-
-
-class KafkaAclCSVGetter(GetterDict):
-    def get(self, key: str, default: Any) -> Any:
-        try:
-            return self._obj[key]
-        except (AttributeError, KeyError):
-            return default
 
 
 class KafkaACL(BaseModel):
