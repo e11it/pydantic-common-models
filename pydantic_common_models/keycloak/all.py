@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional, Any
 from pydantic import BaseModel
 
@@ -25,6 +26,8 @@ class CredentialRepresentation(BaseModel):
 
 
 class UserRepresentation(BaseModel):
+    id: Optional[str] = None
+    createdTimestamp: Optional[datetime] = None
     username: Optional[str] = None
     enabled: Optional[bool] = None
     credentials: Optional[list[CredentialRepresentation]] = None
@@ -32,3 +35,4 @@ class UserRepresentation(BaseModel):
     email: Optional[str] = None
     emailVerified: Optional[bool] = None
     attributes: Optional[Any] = None
+    access: Optional[dict] =None
