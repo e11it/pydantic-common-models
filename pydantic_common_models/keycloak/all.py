@@ -30,5 +30,5 @@ class UserRepresentation(BaseModel):
     credentials: Optional[list[CredentialRepresentation]] = None
     groups: Optional[Any] = None
     email: Optional[str] = None
-    emailVerified: Optional[str] = None
+    emailVerified: Optional[bool] = None
     attributes: Optional[Any] = None
